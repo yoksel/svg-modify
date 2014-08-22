@@ -1,7 +1,7 @@
 var svgmodify = {};
 
- var path = require('path'),
-       grunt = require('grunt');
+var path = require('path'),
+    grunt = require('grunt');
 
 
 function getFolder(filePath) {
@@ -120,27 +120,23 @@ function changeSVG(input, from, to, config) {
     var out = "";
     var svgTail = "</svg>";
 
+    console.log("config");
+    console.log(config);
+
     var folder = getFolder(from);
 
     var fileName = path.basename(from, ".svg");
     var fileNameExt = path.basename(from);
 
-    var newData = config ? config : newConfig[folder][fileName]
-
     input = clearInput(input);
 
-    var svgHead = rebuildSvgHead(input, newData);
+    var svgHead = rebuildSvgHead(input, config);
     var svgBody = getSVGBody(input);
-    var addColor = true;
-    if( newData != undefined && newData["addColor"] != undefined ){
-        addColor = newData["addColor"];
-    }
-    if ( addColor ){
-        svgBody = changeColor(svgBody, newData, folder);
-    }
+    svgBody = changeColor(svgBody, config, folder);
 
     out = svgHead + svgBody + svgTail;
 
+    console.log("to + fileNameExt, out");
     grunt.file.write(to + fileNameExt, out);
 }
 
@@ -148,12 +144,13 @@ function changeSVG(input, from, to, config) {
  * @param {string} input - Input SVG
  * @returns {string} colored svg
  */
-function changeColor(input, newData, folder) {
+function changeColor(input, config, folder) {
     var out = input;
-    var shapeColor = config[folder].color;
+    var shapeColor = ""; //config[folder].color;
+    // set default color
 
-    if (newData && newData.color) {
-        shapeColor = newData.color;
+    if (config && config.color) {
+        shapeColor = config.color;
     }
 
     // colorize shapes if we have color
@@ -164,7 +161,7 @@ function changeColor(input, newData, folder) {
     return out;
 }
 
-svgmodify.resize = function (params){
+svgmodify.resize = function(params) {
 
     var sources = params.sources;
     var config = params.config;
@@ -183,19 +180,18 @@ svgmodify.resize = function (params){
         var folderDefaults = config[folder]["default-sizes"];
         var fileHasDefaults = false;
 
-        if ( folderDefaults != undefined ){
+        if (folderDefaults != undefined) {
             var fileDefaults = folderDefaults[fileName];
-            if ( fileDefaults != undefined ){
+            if (fileDefaults != undefined) {
                 // folder has defaults, file has SIZE
                 fileHasDefaults = true;
                 fileDefaults["addColor"] = false;
             }
         }
 
-        if( fileHasDefaults ){
+        if (fileHasDefaults) {
             changeSVG(grunt.file.read(filePath), filePath, destPath, fileDefaults);
-        }
-        else {
+        } else {
             grunt.file.copy(filePath, destPath + "/" + path.basename(filePath));
         }
 
@@ -205,23 +201,18 @@ svgmodify.resize = function (params){
     return newSources;
 };
 
-svgmodify.resizeAndColor = function(params) {
+svgmodify.makeChanges = function(inputFolder, outputFolder, config) {
 
-    var sources = params.sources;
-    var config = params.config;
-    var outputFolder = params.outputFolder;
-
-    console.log("config");
-    console.log(config);
-
-    // var preparedSVG = grunt.file.expand(svgPreparedFolder + "/**/*.svg");
+    var sources = grunt.file.expand(inputFolder + "**/*.svg");
 
     sources.forEach(function(filePath) {
         var folder = getFolder(filePath);
         var destPath = outputFolder + folder + "/";
         var fileContent = grunt.file.read(filePath);
+        var fileName = path.basename(filePath, ".svg")
+        var fileOptions = config[fileName];
 
-        changeSVG(fileContent, filePath, destPath, config);
+        changeSVG(fileContent, filePath, destPath, fileOptions);
     });
 
 };
