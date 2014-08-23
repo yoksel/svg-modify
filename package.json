@@ -1,11 +1,11 @@
 {
-  "name": "svg-modify",
-  "version": "0.0.1",
-  "description": "Resize and color svg-images",
-  "main": "svg-modify.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "author": "yoksel",
-  "license": "MIT"
+    "name": "svg-modify",
+    "version": "0.0.2",
+    "description": "Resize and color svg-images",
+    "main": "svg-modify.js",
+    "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1"
+    },
+    "author": "yoksel",
+    "license": "MIT"
 }
