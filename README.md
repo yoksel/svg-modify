@@ -6,7 +6,7 @@ Modify SVG by JSON.
 
 Svg-modify helps you to resize SVG-images, colorize them and make a number of variations of one file.
 
-It may be useful if you need to prepare SVG images to convertation to PNG.
+It may be useful if you need to prepare SVG images for convertation to PNG.
 
 ## Getting Started
 
@@ -44,7 +44,7 @@ var changesParams = {
     "inputFolder": "sources/",
     "outputFolder": "result/",
     "folderOptions": folderOptions,
-    "defaultColor": hotpink
+    "defaultColor": "hotpink"
 };
 ```
 
@@ -81,6 +81,8 @@ This'll create a number of variations with names like these:
 arrow-up--w50.svg
 arrow-up--green.svg
 arrow-up--w150--steelblue.svg
+home--w150.svg
+...
 ```
 
 
