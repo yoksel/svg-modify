@@ -3,7 +3,10 @@ var svgmodify = {};
 var path = require('path'),
     grunt = require('grunt');
 
-
+/**
+ * @param {string} filePath
+ * @returns {string} name of folder containing file
+ */
 function getFolder(filePath) {
     var pathArray = filePath.split(path.sep);
     return pathArray[pathArray.length - 2];
@@ -15,7 +18,7 @@ function getFolder(filePath) {
  */
 function clearInput(input) {
     var output = input.replace(new RegExp("[\r\n\t]", "g"), "");
-    // remove xml tad and doctype
+    // remove xml tag and doctype
     output = output.replace(new RegExp("(<)(.*?)(xml |dtd)(.*?)(>)", 'g'), "");
     output = output.replace(new RegExp("(<g></g>)", 'g'), "");
     return output;
@@ -47,31 +50,31 @@ function getSVGAttrs(input) {
 
 /**
  * @param {Object} attrsObj - old attributes of SVG-element
- * @param {Object} data - new attributes of SVG-element
+ * @param {Object} newAttrsObj - new attributes of SVG-element
  * @returns {Object} remapped attributes
  */
-function changeAttrs(attrsObj, data) {
+function changeAttrs(attrsObj, newAttrsObj) {
 
-    for (var key in data) {
+    for (var key in newAttrsObj) {
         var oldWidth, newWidth, oldHeight, newHeight;
 
         if (key === "width") {
             oldWidth = parseFloat(attrsObj["width"]);
-            newWidth = parseFloat(data["width"]);
+            newWidth = parseFloat(newAttrsObj["width"]);
             oldHeight = parseFloat(attrsObj["height"]);
             newHeight = newWidth / oldWidth * oldHeight;
 
             attrsObj["height"] = newHeight + "px";
-            attrsObj[key] = data[key] + "px";
+            attrsObj[key] = newAttrsObj[key] + "px";
         } else if (key === "height") {
             oldHeight = parseFloat(attrsObj["height"]);
-            newHeight = parseFloat(data["height"]);
+            newHeight = parseFloat(newAttrsObj["height"]);
 
             oldWidth = parseFloat(attrsObj["width"]);
             newWidth = newHeight / oldHeight * oldWidth;
 
             attrsObj["width"] = newWidth + "px";
-            attrsObj[key] = data[key] + "px";
+            attrsObj[key] = newAttrsObj[key] + "px";
         }
     }
     return attrsObj;
@@ -79,17 +82,17 @@ function changeAttrs(attrsObj, data) {
 
 /**
  * @param {string} input - Input SVG
- * @param {string} fileName for getting data from config
+ * @param {Object} newAttrsObj
  * @returns {string} new tag "svg"
  */
-function rebuildSvgHead(input, newData) {
+function rebuildSvgHead(input, newAttrsObj) {
     var out = "";
     var svgKeys = ["version", "xmlns", "width", "height", "viewBox"];
 
     var attrsObj = getSVGAttrs(input);
 
-    if (newData) {
-        attrsObj = changeAttrs(attrsObj, newData);
+    if (newAttrsObj) {
+        attrsObj = changeAttrs(attrsObj, newAttrsObj);
     }
 
     for (var i = 0; i < svgKeys.length; i++) {
@@ -111,43 +114,12 @@ function getSVGBody(input) {
 
 /**
  * @param {string} input - Input SVG
- * @param {string} from - Input path
- * @param {string} to - Output path
- * @param {Object} config - params to replace in file
- * @returns {string} svg with new sizes and color
- */
-function changeSVG(input, from, to, config) {
-    var out = "";
-    var svgTail = "</svg>";
-
-    console.log("config");
-    console.log(config);
-
-    var folder = getFolder(from);
-
-    var fileName = path.basename(from, ".svg");
-    var fileNameExt = path.basename(from);
-
-    input = clearInput(input);
-
-    var svgHead = rebuildSvgHead(input, config);
-    var svgBody = getSVGBody(input);
-    svgBody = changeColor(svgBody, config, folder);
-
-    out = svgHead + svgBody + svgTail;
-
-    console.log("to + fileNameExt, out");
-    grunt.file.write(to + fileNameExt, out);
-}
-
-/**
- * @param {string} input - Input SVG
+ * @param {Object} config - parameters for modifying SVG
  * @returns {string} colored svg
  */
-function changeColor(input, config, folder) {
+function changeColor(input, config) {
     var out = input;
-    var shapeColor = ""; //config[folder].color;
-    // set default color
+    var shapeColor = svgmodify.defaultColor; // set default color
 
     if (config && config.color) {
         shapeColor = config.color;
@@ -161,60 +133,95 @@ function changeColor(input, config, folder) {
     return out;
 }
 
-svgmodify.resize = function(params) {
+/**
+ * @param {string} filePath - input path
+ * @param {string} destPath - output path
+ * @param {Object} config - params to replace in file
+ * @returns {string} svg with new sizes and color
+ */
+function changeSVG(filePath, destPath, config) {
+    var input = grunt.file.read(filePath);
+    var out = input;
+    var svgTail = "</svg>";
 
-    var sources = params.sources;
-    var config = params.config;
-    var outputFolder = params.outputFolder;
+    input = clearInput(input);
 
-    console.log("config");
-    console.log(config);
+    if (config) {
 
-    sources.forEach(function(filePath) {
         var folder = getFolder(filePath);
 
-        console.log(folder);
+        var svgHead = rebuildSvgHead(input, config);
+        var svgBody = getSVGBody(input);
+        svgBody = changeColor(svgBody, config, folder);
 
-        var destPath = outputFolder + folder + "/";
-        var fileName = path.basename(filePath, ".svg");
-        var folderDefaults = config[folder]["default-sizes"];
-        var fileHasDefaults = false;
+        out = svgHead + svgBody + svgTail;
+    }
 
-        if (folderDefaults != undefined) {
-            var fileDefaults = folderDefaults[fileName];
-            if (fileDefaults != undefined) {
-                // folder has defaults, file has SIZE
-                fileHasDefaults = true;
-                fileDefaults["addColor"] = false;
-            }
-        }
+    grunt.file.write(destPath, out);
+}
 
-        if (fileHasDefaults) {
-            changeSVG(grunt.file.read(filePath), filePath, destPath, fileDefaults);
-        } else {
-            grunt.file.copy(filePath, destPath + "/" + path.basename(filePath));
-        }
+/**
+ * @param {string} fileName
+ * @param {Object} props for modifying file
+ * @returns {string} fileName with markers of modifications
+ */
+function fileNameModf(fileName, props) {
 
-    });
+    var prefixes = {
+        "width": "w",
+        "height": "h"
+    };
 
-    var newSources = grunt.file.expand(outputFolder + "/**/*.svg");
-    return newSources;
-};
+    for (var key in props) {
+        var prefix = prefixes[key] ? prefixes[key] : "";
+        fileName += "--" + prefix;
+        fileName += props[key];
+    }
+    return fileName;
+}
 
-svgmodify.makeChanges = function(inputFolder, outputFolder, config) {
+/**
+ * Modify SVG by options
+ * @param {Object} params
+ * @param {string} params.inputFolder
+ * @param {string} params.outputFolder
+ * @param {Object} params.config
+ * @param {string} params.defaultColor
+ */
+svgmodify.makeChanges = function(params) {
+
+    var inputFolder = params.inputFolder,
+        outputFolder = params.outputFolder,
+        config = params.folderOptions;
+
+    svgmodify.defaultColor = params.defaultColor;
 
     var sources = grunt.file.expand(inputFolder + "**/*.svg");
 
     sources.forEach(function(filePath) {
-        var folder = getFolder(filePath);
-        var destPath = outputFolder + folder + "/";
-        var fileContent = grunt.file.read(filePath);
-        var fileName = path.basename(filePath, ".svg")
-        var fileOptions = config[fileName];
+        var folder = getFolder(filePath),
+            destFolder = outputFolder + folder + "/",
+            fileName = path.basename(filePath, ".svg"),
+            fileNameExt = path.basename(filePath),
+            destPath = destFolder + fileNameExt,
+            fileOptions = config[fileName];
 
-        changeSVG(fileContent, filePath, destPath, fileOptions);
+        if (Array.isArray(fileOptions)) {
+            // copy initial file
+            if (svgmodify.defaultColor) {
+                changeSVG(filePath, destPath, {});
+            } else {
+                grunt.file.copy(filePath, destPath);
+            }
+            // create variations of file
+            fileOptions.forEach(function(props) {
+                destPath = destFolder + fileNameModf(fileName, props) + ".svg";
+                changeSVG(filePath, destPath, props);
+            });
+        } else {
+            changeSVG(filePath, destPath, fileOptions);
+        }
     });
-
 };
 
 module.exports = svgmodify;
