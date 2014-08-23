@@ -23,7 +23,7 @@ var folderOptions = {
     "arrow-up": { // <--- name of file
         "width": "187"
         },
-    "home": { // name of file
+    "home": { // <--- name of file
         "height": "42"
     }
 };
