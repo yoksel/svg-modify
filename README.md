@@ -20,17 +20,17 @@ This'll change SVG without renaming:
 
 ```js
 var folderOptions = {
-    "arrow-up": {
+    "arrow-up": { // <--- name of file
         "width": "187"
         },
-    "home": {
+    "home": { // name of file
         "height": "42"
     }
 };
 
 var changesParams = {
-    "inputFolder": "sources/",
-    "outputFolder": "result/",
+    "inputFolder": "sources/",  // <--- folder with source files
+    "outputFolder": "result/", // <--- place for changed files
     "folderOptions": folderOptions
 };
 
@@ -44,7 +44,7 @@ var changesParams = {
     "inputFolder": "sources/",
     "outputFolder": "result/",
     "folderOptions": folderOptions,
-    "defaultColor": "hotpink"
+    "defaultColor": "hotpink" // <--- color
 };
 ```
 
@@ -57,21 +57,21 @@ Set list of variations:
 ```js
 var folderOptions = {
         "arrow-up": [{
-            "width": "50"
-        }, {
-            "color": "green"
-        }, {
-            "width": "150",
-            "color": "steelblue"
-        }],
+                "width": "50"
+            }, {
+                "color": "green"
+            }, {
+                "width": "150",
+                "color": "steelblue"
+            }],
         "home": [{
-            "width": "150"
-        }, {
-            "width": "170",
-            "color": "teal"
-        }, {
-            "height": "62",
-            "color": "yellowgreen"
+                "width": "150"
+            }, {
+                "width": "170",
+                "color": "teal"
+            }, {
+                "height": "62",
+                "color": "yellowgreen"
         }]
     };
 ```
