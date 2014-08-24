@@ -146,7 +146,7 @@ function changeSVG(filePath, destPath, config) {
 
     input = clearInput(input);
 
-    if (config) {
+    if (config || svgmodify.defaultColor) {
 
         var folder = getFolder(filePath);
 
@@ -204,7 +204,11 @@ svgmodify.makeChanges = function(params) {
             fileName = path.basename(filePath, ".svg"),
             fileNameExt = path.basename(filePath),
             destPath = destFolder + fileNameExt,
+            fileOptions = {};
+
+        if (config && config[fileName]) {
             fileOptions = config[fileName];
+        }
 
         if (Array.isArray(fileOptions)) {
             // copy initial file
