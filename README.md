@@ -85,4 +85,8 @@ home--w150.svg
 ...
 ```
 
+## Release History
+
+0.0.4 - Add ability colorize without additional configs
+
 
