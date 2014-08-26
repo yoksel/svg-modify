@@ -87,6 +87,8 @@ home--w150.svg
 
 ## Release History
 
+0.0.5 - Now fill color correctly overrides with color from config
+
 0.0.4 - Add ability colorize without additional configs
 
 

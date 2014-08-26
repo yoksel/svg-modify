@@ -120,13 +120,16 @@ function getSVGBody(input) {
 function changeColor(input, config) {
     var out = input;
     var shapeColor = svgmodify.defaultColor; // set default color
+    var hasFill = input.indexOf("g fill") > 0;
 
     if (config && config.color) {
         shapeColor = config.color;
     }
 
-    // colorize shapes if we have color
-    if (shapeColor) {
+    if (shapeColor && hasFill) {
+        out = input.replace(new RegExp("(fill=\")(.*?)(\")", "g"), "fill=\"" + shapeColor + "\"");
+    }
+    else if (shapeColor) {
         out = "<g fill=\"" + shapeColor + "\">" + out + "</g>";
     }
 
