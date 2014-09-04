@@ -5,7 +5,10 @@ var path = require('path'),
 
 /**
  * @param {string} filePath
- * @returns {string} name of folder containing file
+ * @returns {
+     string
+ }
+ name of folder containing file
  */
 function getFolder(filePath) {
     var pathArray = filePath.split(path.sep);
@@ -121,15 +124,22 @@ function changeColor(input, config) {
     var out = input;
     var shapeColor = svgmodify.defaultColor; // set default color
     var hasFill = input.indexOf("g fill") > 0;
+    var colorize = config["colorize"];
+    var defaults = config["defaults"];
+
+    if (colorize === false) {
+        return out;
+    }
 
     if (config && config.color) {
         shapeColor = config.color;
+    } else if (defaults && defaults.color) {
+        shapeColor = defaults.color;
     }
 
     if (shapeColor && hasFill) {
         out = input.replace(new RegExp("(fill=\")(.*?)(\")", "g"), "fill=\"" + shapeColor + "\"");
-    }
-    else if (shapeColor) {
+    } else if (shapeColor) {
         out = "<g fill=\"" + shapeColor + "\">" + out + "</g>";
     }
 
@@ -195,7 +205,9 @@ svgmodify.makeChanges = function(params) {
 
     var inputFolder = params.inputFolder,
         outputFolder = params.outputFolder,
-        config = params.folderOptions;
+        config = params.folderOptions,
+        colorize = params.colorize === false ? false : true,
+        defaults = params.defaults;
 
     svgmodify.defaultColor = params.defaultColor;
 
@@ -210,19 +222,30 @@ svgmodify.makeChanges = function(params) {
             fileOptions = {};
 
         if (config && config[fileName]) {
+
             fileOptions = config[fileName];
+            fileOptions["colorize"] = colorize;
+            if (defaults) {
+                fileOptions["defaults"] = defaults;
+            }
         }
 
         if (Array.isArray(fileOptions)) {
-            // copy initial file
+            // copy initial file, add default color if exist
             if (svgmodify.defaultColor) {
-                changeSVG(filePath, destPath, {});
+                if (defaults) {
+                    fileOptions["defaults"] = defaults[fileName];
+                }
+                changeSVG(filePath, destPath, fileOptions);
             } else {
                 grunt.file.copy(filePath, destPath);
             }
             // create variations of file
             fileOptions.forEach(function(props) {
                 destPath = destFolder + fileNameModf(fileName, props) + ".svg";
+                if (defaults) {
+                    props["defaults"] = defaults[fileName];
+                }
                 changeSVG(filePath, destPath, props);
             });
         } else {

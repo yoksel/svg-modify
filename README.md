@@ -50,6 +50,19 @@ var changesParams = {
 
 This'll change SVG without renaming too.
 
+If you need not colorize though there are colors in the config, use this:
+
+```js
+var changesParams = {
+    "inputFolder": "sources/",
+    "outputFolder": "result/",
+    "folderOptions": folderOptions,
+    "colorize": false
+};
+```
+
+It's useful for resizing SVG without coloring it.
+
 ### Creating modifications of one file
 
 Set list of variations:
@@ -86,6 +99,8 @@ home--w150.svg
 ```
 
 ## Release History
+
+0.0.6 - Add ability to use `colorize: false` if images needn't be colorized though colors in config are exist
 
 0.0.5 - Now fill color correctly overrides with color from config
 
