@@ -178,7 +178,7 @@ function changeSVG(filePath, destPath, config) {
  * @param {Object} props for modifying file
  * @returns {string} fileName with markers of modifications
  */
-function fileNameModf(fileName, props) {
+svgmodify.fileNameModf = function(fileName, props) {
 
     var prefixes = {
         "width": "w",
@@ -242,7 +242,7 @@ svgmodify.makeChanges = function(params) {
             }
             // create variations of file
             fileOptions.forEach(function(props) {
-                destPath = destFolder + fileNameModf(fileName, props) + ".svg";
+                destPath = destFolder + svgmodify.fileNameModf(fileName, props) + ".svg";
                 if (defaults) {
                     props["defaults"] = defaults[fileName];
                 }
