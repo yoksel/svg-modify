@@ -187,8 +187,13 @@ svgmodify.fileNameModf = function(fileName, props) {
 
     for (var key in props) {
         var prefix = prefixes[key] ? prefixes[key] : "";
+        var propValue = props[key];
+        // Remove # from hex colors
+        propValue = propValue.replace(new RegExp("#", "g"), "");
+        propValue = propValue.toLowerCase();
+
         fileName += "--" + prefix;
-        fileName += props[key];
+        fileName += propValue;
     }
     return fileName;
 }
