@@ -20,10 +20,20 @@ function getFolder(filePath) {
  * @returns {string} clear svg-code
  */
 function clearInput(input) {
-    var output = input.replace(new RegExp('[\r\n\t]', 'g'), '');
-    // remove xml tag and doctype
+    var output = input.replace(new RegExp('([\r\n\t]|\s{2,})', 'g'), '');
+
     output = output.replace(new RegExp('(<)(.*?)(xml |dtd)(.*?)(>)', 'g'), '');
+
     output = output.replace(new RegExp('(<g></g>)', 'g'), '');
+    output = output.replace(new RegExp('(<defs></defs>)', 'g'), '');
+
+    output = output.replace(new RegExp('((<!--)(.*?)(-->))', 'g'), '');
+    output = output.replace(new RegExp('(<title>(.*?)</title>)', 'g'), '');
+    output = output.replace(new RegExp('(<desc>(.*?)</desc>)', 'g'), '');
+
+    output = output.replace(new RegExp('( sketch:type="(.*?)")', 'g'), '');
+    output = output.replace(new RegExp('( id="(.*?)")', 'g'), '');
+
     return output;
 }
 
