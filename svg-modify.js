@@ -20,31 +20,31 @@ function getFolder(filePath) {
  * @returns {string} clear svg-code
  */
 function clearInput(input) {
-    var output = input.replace(new RegExp("[\r\n\t]", "g"), "");
+    var output = input.replace(new RegExp('[\r\n\t]', 'g'), '');
     // remove xml tag and doctype
-    output = output.replace(new RegExp("(<)(.*?)(xml |dtd)(.*?)(>)", 'g'), "");
-    output = output.replace(new RegExp("(<g></g>)", 'g'), "");
+    output = output.replace(new RegExp('(<)(.*?)(xml |dtd)(.*?)(>)', 'g'), '');
+    output = output.replace(new RegExp('(<g></g>)', 'g'), '');
     return output;
 }
 
 /**
  * @param {string} input - SVG code
- * @returns {Object} attributes of tag "svg"
+ * @returns {Object} attributes of tag 'svg'
  */
 function getSVGAttrs(input) {
-    var svgHeadRx = new RegExp("(<svg)(.*?)(>)", 'g');
+    var svgHeadRx = new RegExp('(<svg)(.*?)(>)', 'g');
     var svgOpenTag = svgHeadRx.exec(input)[0];
-    svgOpenTag = svgOpenTag.replace(new RegExp("(<svg )|>", 'g'), "");
-    var attrsSrc = svgOpenTag.split("\" ");
+    svgOpenTag = svgOpenTag.replace(new RegExp('(<svg )|>', 'g'), '');
+    var attrsSrc = svgOpenTag.split('" ');
     var attrsObj = {};
 
     attrsSrc.forEach(function(attrStr) {
-        var attrArray = attrStr.split("=");
+        var attrArray = attrStr.split('=');
 
         var attrName = attrArray[0];
         var attrVal = attrArray[1];
 
-        attrVal = attrVal.replace(new RegExp("[\"]", 'g'), "");
+        attrVal = attrVal.replace(new RegExp('["]', 'g'), '');
         attrsObj[attrName] = attrVal;
     });
 
@@ -61,23 +61,23 @@ function changeAttrs(attrsObj, newAttrsObj) {
     for (var key in newAttrsObj) {
         var oldWidth, newWidth, oldHeight, newHeight;
 
-        if (key === "width") {
-            oldWidth = parseFloat(attrsObj["width"]);
-            newWidth = parseFloat(newAttrsObj["width"]);
-            oldHeight = parseFloat(attrsObj["height"]);
+        if (key === 'width') {
+            oldWidth = parseFloat(attrsObj['width']);
+            newWidth = parseFloat(newAttrsObj['width']);
+            oldHeight = parseFloat(attrsObj['height']);
             newHeight = newWidth / oldWidth * oldHeight;
 
-            attrsObj["height"] = newHeight + "px";
-            attrsObj[key] = newAttrsObj[key] + "px";
-        } else if (key === "height") {
-            oldHeight = parseFloat(attrsObj["height"]);
-            newHeight = parseFloat(newAttrsObj["height"]);
+            attrsObj['height'] = newHeight + 'px';
+            attrsObj[key] = newAttrsObj[key] + 'px';
+        } else if (key === 'height') {
+            oldHeight = parseFloat(attrsObj['height']);
+            newHeight = parseFloat(newAttrsObj['height']);
 
-            oldWidth = parseFloat(attrsObj["width"]);
+            oldWidth = parseFloat(attrsObj['width']);
             newWidth = newHeight / oldHeight * oldWidth;
 
-            attrsObj["width"] = newWidth + "px";
-            attrsObj[key] = newAttrsObj[key] + "px";
+            attrsObj['width'] = newWidth + 'px';
+            attrsObj[key] = newAttrsObj[key] + 'px';
         }
     }
     return attrsObj;
@@ -86,11 +86,11 @@ function changeAttrs(attrsObj, newAttrsObj) {
 /**
  * @param {string} input - Input SVG
  * @param {Object} newAttrsObj
- * @returns {string} new tag "svg"
+ * @returns {string} new tag 'svg'
  */
 function rebuildSvgHead(input, newAttrsObj) {
-    var out = "";
-    var svgKeys = ["version", "xmlns", "width", "height", "viewBox"];
+    var out = '';
+    var svgKeys = ['version', 'xmlns', 'width', 'height', 'viewBox'];
 
     var attrsObj = getSVGAttrs(input);
 
@@ -100,19 +100,19 @@ function rebuildSvgHead(input, newAttrsObj) {
 
     for (var i = 0; i < svgKeys.length; i++) {
         var key = svgKeys[i];
-        out += " " + key + "=\"" + attrsObj[key] + "\"";
+        out += ' ' + key + '="' + attrsObj[key] + '"';
     }
-    out = "<svg" + out + ">";
+    out = '<svg' + out + '>';
 
     return out;
 }
 
 /**
  * @param {string} input - SVG-code
- * @returns {string} content of SVG-file without tags "svg"
+ * @returns {string} content of SVG-file without tags 'svg'
  */
 function getSVGBody(input) {
-    return input.replace(new RegExp("(<svg|</svg)(.*?)(>)", 'g'), "");
+    return input.replace(new RegExp('(<svg|</svg)(.*?)(>)', 'g'), '');
 }
 
 /**
@@ -123,9 +123,9 @@ function getSVGBody(input) {
 function changeColor(input, config) {
     var out = input;
     var shapeColor = svgmodify.defaultColor; // set default color
-    var hasFill = input.indexOf("g fill") > 0;
-    var colorize = config["colorize"];
-    var defaults = config["defaults"];
+    var hasFill = input.indexOf('g fill') > 0;
+    var colorize = config['colorize'];
+    var defaults = config['defaults'];
 
     if (colorize === false) {
         return out;
@@ -138,9 +138,9 @@ function changeColor(input, config) {
     }
 
     if (shapeColor && hasFill) {
-        out = input.replace(new RegExp("(fill=\")(.*?)(\")", "g"), "fill=\"" + shapeColor + "\"");
+        out = input.replace(new RegExp('(fill=")(.*?)(")', 'g'), 'fill="' + shapeColor + '"');
     } else if (shapeColor) {
-        out = "<g fill=\"" + shapeColor + "\">" + out + "</g>";
+        out = '<g fill="' + shapeColor + '">' + out + '</g>';
     }
 
     return out;
@@ -155,7 +155,7 @@ function changeColor(input, config) {
 function changeSVG(filePath, destPath, config) {
     var input = grunt.file.read(filePath);
     var out = input;
-    var svgTail = "</svg>";
+    var svgTail = '</svg>';
 
     input = clearInput(input);
 
@@ -181,22 +181,22 @@ function changeSVG(filePath, destPath, config) {
 svgmodify.fileNameModf = function(fileName, props) {
 
     var prefixes = {
-        "width": "w",
-        "height": "h"
+        'width': 'w',
+        'height': 'h'
     };
 
     for (var key in props) {
-        var prefix = prefixes[key] ? prefixes[key] : "";
+        var prefix = prefixes[key] ? prefixes[key] : '';
         var propValue = props[key];
         // Remove # from hex colors
-        propValue = propValue.replace(new RegExp("#", "g"), "");
+        propValue = propValue.replace(new RegExp('#', 'g'), '');
         propValue = propValue.toLowerCase();
 
-        fileName += "--" + prefix;
+        fileName += '--' + prefix;
         fileName += propValue;
     }
     return fileName;
-}
+};
 
 /**
  * Modify SVG by options
@@ -216,12 +216,12 @@ svgmodify.makeChanges = function(params) {
 
     svgmodify.defaultColor = params.defaultColor;
 
-    var sources = grunt.file.expand(inputFolder + "**/*.svg");
+    var sources = grunt.file.expand(inputFolder + '**/*.svg');
 
     sources.forEach(function(filePath) {
         var folder = getFolder(filePath),
-            destFolder = outputFolder + folder + "/",
-            fileName = path.basename(filePath, ".svg"),
+            destFolder = outputFolder + folder + '/',
+            fileName = path.basename(filePath, '.svg'),
             fileNameExt = path.basename(filePath),
             destPath = destFolder + fileNameExt,
             fileOptions = {};
@@ -229,9 +229,9 @@ svgmodify.makeChanges = function(params) {
         if (config && config[fileName]) {
 
             fileOptions = config[fileName];
-            fileOptions["colorize"] = colorize;
+            fileOptions['colorize'] = colorize;
             if (defaults) {
-                fileOptions["defaults"] = defaults;
+                fileOptions['defaults'] = defaults;
             }
         }
 
@@ -239,7 +239,7 @@ svgmodify.makeChanges = function(params) {
             // copy initial file, add default color if exist
             if (svgmodify.defaultColor) {
                 if (defaults) {
-                    fileOptions["defaults"] = defaults[fileName];
+                    fileOptions['defaults'] = defaults[fileName];
                 }
                 changeSVG(filePath, destPath, fileOptions);
             } else {
@@ -247,9 +247,9 @@ svgmodify.makeChanges = function(params) {
             }
             // create variations of file
             fileOptions.forEach(function(props) {
-                destPath = destFolder + svgmodify.fileNameModf(fileName, props) + ".svg";
+                destPath = destFolder + svgmodify.fileNameModf(fileName, props) + '.svg';
                 if (defaults) {
-                    props["defaults"] = defaults[fileName];
+                    props['defaults'] = defaults[fileName];
                 }
                 changeSVG(filePath, destPath, props);
             });
