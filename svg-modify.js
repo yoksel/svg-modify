@@ -1,5 +1,7 @@
 var svgmodify = {};
 
+svgmodify.colorize = true;
+
 var path = require('path'),
     grunt = require('grunt');
 
@@ -137,7 +139,7 @@ function changeColor(input, config) {
     var colorize = config['colorize'];
     var defaults = config['defaults'];
 
-    if (colorize === false) {
+    if (colorize === false || svgmodify.colorize === false) {
         return out;
     }
 

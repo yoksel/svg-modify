@@ -1,6 +1,6 @@
 {
     "name": "svg-modify",
-    "version": "0.0.11",
+    "version": "0.0.12",
     "description": "Resize and color svg-images",
     "main": "svg-modify.js",
     "scripts": {
