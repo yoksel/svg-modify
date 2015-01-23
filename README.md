@@ -100,6 +100,8 @@ home--w150.svg
 
 ## Release History
 
+0.0.10 — Add global colorize option. Use `svgmodify.colorize = false;` to switch colorize off.
+
 0.0.9 - Add cleaning of SVG content. Comments, title, desc, Sketch attributes and ID will be removed from symbols.
 
 0.0.8 - Fix modifications created with hex colors
