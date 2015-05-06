@@ -200,6 +200,10 @@ svgmodify.fileNameModf = function(fileName, props) {
     for (var key in props) {
         var prefix = prefixes[key] ? prefixes[key] : '';
         var propValue = props[key];
+
+        // Convert to string
+        propValue = (propValue || '').toString();
+
         // Remove # from hex colors
         propValue = propValue.replace(new RegExp('#', 'g'), '');
         propValue = propValue.toLowerCase();
