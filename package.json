@@ -11,5 +11,8 @@
         "url": "https://github.com/yoksel/svg-modify"
     },
     "author": "yoksel",
-    "license": "MIT"
+    "license": "MIT",
+    "dependencies": {
+        "grunt": "^1.0.2"
+    }
 }
