@@ -1,4 +1,4 @@
-# svg-modify
+# [NOT SUPPORTED] svg-modify
 
 Modify SVG by JSON.
 
